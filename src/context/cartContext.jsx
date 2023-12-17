@@ -3,7 +3,7 @@ import { useState } from "react";
 import { createContext } from "react";
 import { getLsItem, setLsItem } from "../assets/js/helpers";
 
-const CartContext = createContext()
+export const CartContext = createContext()
 
 const initialShoppingCart = getLsItem('shopping-cart') || []
 
@@ -12,34 +12,32 @@ export const CartProvider = ({ children }) => {
     const [shoppingCart, setShoppingCart] = useState(initialShoppingCart)
 
     const addProduct = (objProduct, newAmount) => {
+        const { id, description, image, price } = objProduct;
+        const newObject = { id, description, image, price, amount: newAmount };
 
-        const { id, description, image, price } = objProduct
+        let newShoppingCart = [...shoppingCart];
 
-        const newObject = { id, description, image, price, newAmount }
-
-        let newShoppingCart = [...shoppingCart]
-
-        const productExist = productInCart(objProduct)
+        const productExist = productInCart(objProduct);
 
         if (productExist) {
-            const { id: idExist } = productExist
+            const { id: idExist } = productExist;
 
-            const index = newShoppingCart.findIndex(product => product.id === idExist)
+            const index = newShoppingCart.findIndex(
+                (product) => product.id === idExist
+            );
 
             newShoppingCart[index] = {
                 ...newShoppingCart[index],
-                amount: newShoppingCart[index].amount + newAmount
-            }
+                amount: newShoppingCart[index].amount + newAmount,
+            };
 
-            setShoppingCart([...newShoppingCart])
+            setShoppingCart([...newShoppingCart]);
 
-            return
-
+            return;
         }
 
-        setShoppingCart([...newShoppingCart, newObject])
-
-    }
+        setShoppingCart([...newShoppingCart, newObject]);
+    };
 
     const productInCart = objProduct => {
 
@@ -59,7 +57,9 @@ export const CartProvider = ({ children }) => {
         addProduct
     }
 
-    return <CartContext.Provider value={objValues}>
-        {children}
-    </CartContext.Provider>
+    return (
+        <CartContext.Provider value={objValues}>
+            {children}
+        </CartContext.Provider>
+    )
 }

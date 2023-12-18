@@ -12,32 +12,30 @@ export const CartProvider = ({ children }) => {
     const [shoppingCart, setShoppingCart] = useState(initialShoppingCart)
 
     const addProduct = (objProduct, newAmount) => {
-        const { id, description, image, price } = objProduct;
-        const newObject = { id, description, image, price, amount: newAmount };
+        const { id, description, img, price, stock } = objProduct
+        const newObject = { id, description, img, price, amount: newAmount, stock }
 
-        let newShoppingCart = [...shoppingCart];
+        let newShoppingCart = [...shoppingCart]
 
-        const productExist = productInCart(objProduct);
+        const productExist = productInCart(objProduct)
 
         if (productExist) {
-            const { id: idExist } = productExist;
+            const { id: idExist } = productExist
 
-            const index = newShoppingCart.findIndex(
-                (product) => product.id === idExist
-            );
+            const index = newShoppingCart.findIndex(product => product.id === idExist)
 
             newShoppingCart[index] = {
                 ...newShoppingCart[index],
                 amount: newShoppingCart[index].amount + newAmount,
-            };
+            }
 
-            setShoppingCart([...newShoppingCart]);
+            setShoppingCart([...newShoppingCart])
 
-            return;
+            return
         }
 
-        setShoppingCart([...newShoppingCart, newObject]);
-    };
+        setShoppingCart([...newShoppingCart, newObject])
+    }
 
     const productInCart = objProduct => {
 
@@ -47,8 +45,15 @@ export const CartProvider = ({ children }) => {
 
     }
 
-    // carrito.reduce((acc, prod) => acc + prod.cantidad, 0);
+    const removeItem = (objProduct) => {
+        const { id } = objProduct
+        const newShoppingCart = shoppingCart.filter(product => product.id !== id)
+        setShoppingCart([...newShoppingCart])
+    }
+
     const itemsInCart = () => shoppingCart.reduce((acc, prod) => acc + prod.amount, 0)
+
+    const totalPrice = () => shoppingCart.reduce((acc, prod) => acc + prod.price * prod.amount, 0)
 
     useEffect(() => {
 
@@ -57,7 +62,7 @@ export const CartProvider = ({ children }) => {
     }, [shoppingCart]);
 
     const objValues = {
-        addProduct, itemsInCart, shoppingCart
+        addProduct, removeItem, itemsInCart, totalPrice, shoppingCart
     }
 
     return (

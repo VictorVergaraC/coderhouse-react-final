@@ -18,32 +18,8 @@ const ProductsContainer = () => {
         setIsLoading(true)
         const objCollection = collection(DATABASE, 'products')
 
-        if (category) {
-            const itemsCategory = query(objCollection, where('category', '==', category))
-            const arrData = await getDocs(itemsCategory)
-                .then(result => {
-                    const arrProducts = result.docs.map(item => {
-                        const product = {
-                            id: item.id,
-                            ...item.data()
-                        }
-                        return product
-                    })
-                    setProducts([...arrProducts])
-                    setIsLoading(false)
-                    return arrProducts
-                })
-                .catch(err => {
-                    console.log(err)
-                    setIsLoading(false)
-                    return []
-                })
-
-            return
-        }
-        
-        const allProducts = query(collection(DATABASE, "products"))
-        getDocs(allProducts)
+        const itemsProducts = category ? query(objCollection, where('category', '==', category)) : query(objCollection)
+        const arrData = await getDocs(itemsProducts)
             .then(result => {
                 const arrProducts = result.docs.map(item => {
                     const product = {
@@ -52,15 +28,15 @@ const ProductsContainer = () => {
                     }
                     return product
                 })
-                setProducts([...arrProducts])
-                setIsLoading(false)
                 return arrProducts
             })
             .catch(err => {
-                console.log("Error en getDocs()...", err)
-                setIsLoading(false)
+                console.log(err)
                 return []
             })
+
+        setProducts(await arrData)
+        setIsLoading(false)
 
     }
 
@@ -75,9 +51,15 @@ const ProductsContainer = () => {
             {
                 isLoading ? (
                     <LoadingModal />
-                ) : products.map(item => (
-                    <Product key={item.id} {...item} />
-                ))
+                ) : products.length > 0 ?
+                    products.map(item => (
+                        <Product key={item.id} {...item} />
+                    )) : (
+                        <article className="alert alert-danger" role="alert">
+                            No se encontraron productos!
+                        </article>
+                    )
+
             }
         </section>
     );

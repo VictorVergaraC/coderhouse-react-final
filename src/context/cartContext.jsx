@@ -47,6 +47,9 @@ export const CartProvider = ({ children }) => {
 
     }
 
+    // carrito.reduce((acc, prod) => acc + prod.cantidad, 0);
+    const itemsInCart = () => shoppingCart.reduce((acc, prod) => acc + prod.amount, 0)
+
     useEffect(() => {
 
         setLsItem('shopping-cart', shoppingCart)
@@ -54,7 +57,7 @@ export const CartProvider = ({ children }) => {
     }, [shoppingCart]);
 
     const objValues = {
-        addProduct
+        addProduct, itemsInCart, shoppingCart
     }
 
     return (

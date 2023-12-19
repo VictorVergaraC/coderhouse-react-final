@@ -17,7 +17,9 @@ const Product = ({ id, description, name, img, price, stock }) => {
             <Link to={`/producto/${id}`} className="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-75-hover mb-3">
                 <h6>{description}</h6>
             </Link>
-            <img className='mb-3 rounded mb-3' style={{ width: '150px', height: '200px' }} src={img} alt={description} />
+            <Link to={`/producto/${id}`}>
+                <img className='mb-3 rounded mb-3' style={{ width: '150px', height: '200px' }} src={img} alt={description} />
+            </Link>
             <h5 className="mb-3">${price}</h5>
             <button className={`btn btn-sm btn-success ${stock <= 5 ? 'mt-3' : ''}`} onClick={handleAppend}>Agregar</button>
         </article>

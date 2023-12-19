@@ -26,7 +26,7 @@ export const CartProvider = ({ children }) => {
 
             newShoppingCart[index] = {
                 ...newShoppingCart[index],
-                amount: newShoppingCart[index].amount + newAmount,
+                amount: newShoppingCart[index].amount + newAmount <= stock ? newShoppingCart[index].amount + newAmount : newShoppingCart[index].amount,
             }
 
             setShoppingCart([...newShoppingCart])

@@ -59,6 +59,7 @@ const ProductDetail = () => {
             const object = productData.find(product => product.id === id)
 
             setObjProduct(object)
+            setMaxAdd(object.stock)
             setIsLoading(false)
 
         } catch (error) {
@@ -88,7 +89,9 @@ const ProductDetail = () => {
         <section className='d-flex justify-content-center align-items-center p-3'>
             {
                 isLoading ? (
-                    <LoadingModal />
+                    <div className="mx-auto my-auto">
+                        <LoadingModal />
+                    </div>
                 ) : (
                     <article className="d-flex flex-column border border-3 rounded-3 p-3">
                         <img className='mb-2 rounded' style={{ width: '300px', height: '350px' }} src={objProduct.img} alt={objProduct.description} />

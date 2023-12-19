@@ -50,7 +50,9 @@ const ProductsContainer = () => {
         <section className='d-flex flex-sm-wrap justify-content-center gap-3'>
             {
                 isLoading ? (
-                    <LoadingModal />
+                    <div className="mx-auto my-auto">
+                        <LoadingModal />
+                    </div>
                 ) : products.length > 0 ?
                     products.map(item => (
                         <Product key={item.id} {...item} />

@@ -27,6 +27,7 @@ const ProductDetail = () => {
 
     const handleAddProduct = () => {
         if (count > 0) {
+
             addProduct(objProduct, count)
             reset()
             showSimpleAlert('success', 'Producto Agregado!', 'Puede revisar el detalle haciendo click en el ícono del carrito!')
@@ -34,11 +35,11 @@ const ProductDetail = () => {
 
     }
 
+    const productInCart = () => shoppingCart.find(prod => prod.id === id)
+
     // Quizás no es lo más óptimo, pero tuve que traer todos los productos y luego filtrar,
     // debido a que no me funcionaba con: `const docProduct = query(objCollection, where('id', '==', id))`
     // no me traía ningún registro.
-
-    const productInCart = () => shoppingCart.find(prod => prod.id === id)
 
     const getProduct = async () => {
 
@@ -57,17 +58,25 @@ const ProductDetail = () => {
             })
             const object = productData.find(product => product.id === id)
 
-            const existInCart = productInCart()
-
             setObjProduct(object)
-            setMaxAdd(existInCart ? (object.stock - existInCart.amount) : object.stock)
             setIsLoading(false)
 
         } catch (error) {
             console.error("Error fetching product:", error)
-            return null
         }
     }
+
+
+    // useEffect implementado para impedir que el usuario agregue más cantidad que el stock
+    useEffect(() => {
+
+        const prodInCart = productInCart()
+        if (prodInCart) {
+            const { stock } = objProduct
+            setMaxAdd(prodInCart ? (stock - prodInCart.amount) : stock)
+        }
+
+    }, [shoppingCart]);
 
     useEffect(() => {
 
@@ -82,28 +91,37 @@ const ProductDetail = () => {
                     <LoadingModal />
                 ) : (
                     <article className="d-flex flex-column border border-3 rounded-3 p-3">
-                        <img className='mb-3 rounded' style={{ width: '300px', height: '350px' }} src={objProduct.img} alt={objProduct.description} />
-                        <h4 className="text-center mb-3">{objProduct.description}</h4>
-                        <h5 className="mb-3">${objProduct.price}</h5>
-                        <p className="mb-3">Unidades disponibles: {objProduct.stock}</p>
+                        <img className='mb-2 rounded' style={{ width: '300px', height: '350px' }} src={objProduct.img} alt={objProduct.description} />
+                        <h4 className="text-center mb-2">{objProduct.description}</h4>
+                        <h5 className="mb-2">${objProduct.price}</h5>
+                        <p className="mb-2">Unidades disponibles: {objProduct.stock}</p>
                         {
                             productInCart() ? (
-                                <p className="mb-3">Usted ya lleva {productInCart().amount} {productInCart().amount > 1 ? 'unidades' : 'unidad'}</p>
+                                <p className="mb-2">Usted ya lleva {productInCart().amount} {productInCart().amount > 1 ? 'unidades' : 'unidad'}</p>
                             ) : null
                         }
                         <section className="d-flex flex-column justify-content-center">
-                            <aside className="d-flex justify-content-center align-items-center gap-2 mb-3">
-                                <button className="btn btn-sm btn-danger" onClick={decrement}>
+                            <aside className="d-flex justify-content-center align-items-center gap-2 mb-2">
+                                <button
+                                    className="btn btn-sm btn-danger"
+                                    onClick={decrement}
+                                    disabled={maxAdd === 0}
+                                >
                                     <FontAwesomeIcon icon={faMinus} />
                                 </button>
                                 <span>{count}</span>
-                                <button className="btn btn-sm btn-primary" onClick={increment}>
+                                <button
+                                    className="btn btn-sm btn-primary"
+                                    onClick={increment}
+                                    disabled={maxAdd === 0}
+                                >
                                     <FontAwesomeIcon icon={faPlus} />
                                 </button>
                             </aside>
                             <button
                                 className="btn btn-sm btn-success"
                                 onClick={handleAddProduct}
+                                disabled={maxAdd === 0}
                             >
                                 Agregar
                             </button>

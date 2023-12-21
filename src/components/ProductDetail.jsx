@@ -2,12 +2,11 @@ import { useContext, useState } from "react";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import LoadingModal from "./LoadingModal";
-import { DATABASE } from "../config/firebaseConfig";
-import { collection, getDocs, query } from "firebase/firestore";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";
 import { CartContext } from "../context/cartContext";
 import { showSimpleAlert } from "../assets/js/helpers";
+import { FireBaseContext } from "../context/firebaseContext";
 
 const ProductDetail = () => {
 
@@ -15,10 +14,10 @@ const ProductDetail = () => {
 
     const { addProduct, shoppingCart } = useContext(CartContext)
 
-    const [isLoading, setIsLoading] = useState(true)
-    const [objProduct, setObjProduct] = useState({})
+    const { currentProduct: objProduct, maxAdd, setMaxAdd, getProductById: getProduct, isLoading } = useContext(FireBaseContext)
 
-    const [maxAdd, setMaxAdd] = useState(5)
+    const [currentStock, setCurrentStock] = useState('')
+
     const [count, setCount] = useState(0)
 
     const increment = () => setCount(count < maxAdd ? count + 1 : count)
@@ -37,39 +36,18 @@ const ProductDetail = () => {
 
     const productInCart = () => shoppingCart.find(prod => prod.id === id)
 
-    // Quizás no es lo más óptimo, pero tuve que traer todos los productos y luego filtrar,
-    // debido a que no me funcionaba con: `const docProduct = query(objCollection, where('id', '==', id))`
-    // no me traía ningún registro.
-
-    const getProduct = async () => {
-
-        const objCollection = collection(DATABASE, 'products')
-        const docProduct = query(objCollection)
-
-        try {
-            const objData = await getDocs(docProduct)
-            const productData = objData.docs.map(doc => {
-                const product = {
-                    id: doc.id,
-                    ...doc.data()
-                }
-
-                return product
-            })
-            const object = productData.find(product => product.id === id)
-
-            setObjProduct(object)
-            setMaxAdd(object.stock)
-            setIsLoading(false)
-
-        } catch (error) {
-            console.error("Error fetching product:", error)
-        }
-    }
-
-
-    // useEffect implementado para impedir que el usuario agregue más cantidad que el stock
     useEffect(() => {
+
+        if (Object.keys(objProduct).length > 0) {
+            const { stock } = objProduct
+            setCurrentStock(stock.toString())
+        }
+
+    }, [objProduct]);
+
+    useEffect(() => {
+
+        getProduct(id)
 
         const prodInCart = productInCart()
         if (prodInCart) {
@@ -78,12 +56,6 @@ const ProductDetail = () => {
         }
 
     }, [shoppingCart]);
-
-    useEffect(() => {
-
-        getProduct()
-
-    }, []);
 
     return (
         <section className='d-flex justify-content-center align-items-center p-3'>
@@ -97,7 +69,11 @@ const ProductDetail = () => {
                         <img className='mb-2 rounded' style={{ width: '300px', height: '350px' }} src={objProduct.img} alt={objProduct.description} />
                         <h4 className="text-center mb-2">{objProduct.description}</h4>
                         <h5 className="mb-2">${objProduct.price}</h5>
-                        <p className="mb-2">Unidades disponibles: {objProduct.stock}</p>
+                        {
+                            currentStock.length > 0 ? (
+                                <p className="mb-2">Unidades disponibles: {currentStock}</p>
+                            ) : null
+                        }
                         {
                             productInCart() ? (
                                 <p className="mb-2">Usted ya lleva {productInCart().amount} {productInCart().amount > 1 ? 'unidades' : 'unidad'}</p>

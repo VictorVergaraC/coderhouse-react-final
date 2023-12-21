@@ -1,13 +1,16 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { useState } from "react";
 import { createContext } from "react";
 import { getLsItem, setLsItem } from "../assets/js/helpers";
+import { FireBaseContext } from "./firebaseContext";
 
 export const CartContext = createContext()
 
 const initialShoppingCart = getLsItem('shopping-cart') || []
 
 export const CartProvider = ({ children }) => {
+
+    const { discountStock, resetStock } = useContext(FireBaseContext)
 
     const [shoppingCart, setShoppingCart] = useState(initialShoppingCart)
 
@@ -26,15 +29,19 @@ export const CartProvider = ({ children }) => {
 
             newShoppingCart[index] = {
                 ...newShoppingCart[index],
-                amount: newShoppingCart[index].amount + newAmount <= stock ? newShoppingCart[index].amount + newAmount : newShoppingCart[index].amount,
+                amount: newShoppingCart[index].amount + newAmount,
+                stock: newShoppingCart[index].amount - newAmount,
             }
 
+            discountStock(newObject, newAmount)
             setShoppingCart([...newShoppingCart])
 
             return
         }
 
-        setShoppingCart([...newShoppingCart, newObject])
+        // setShoppingCart([...newShoppingCart, newObject])
+        setShoppingCart([...newShoppingCart, { ...newObject, stock: stock - newAmount }])
+        discountStock(newObject, newAmount)
     }
 
     const productInCart = objProduct => {
@@ -51,9 +58,11 @@ export const CartProvider = ({ children }) => {
         setShoppingCart([...newShoppingCart])
     }
 
-    const itemsInCart = () => shoppingCart.reduce((acc, prod) => acc + prod.amount, 0)
+    const itemsInCart = () => shoppingCart.reduce((acc, prod) => acc + prod.amount, 0);
 
-    const totalPrice = () => shoppingCart.reduce((acc, prod) => acc + prod.price * prod.amount, 0)
+    const totalPrice = () => shoppingCart.reduce((acc, prod) => acc + prod.price * prod.amount, 0);
+
+    const resetCart = () => setShoppingCart([])
 
     useEffect(() => {
 
@@ -62,7 +71,7 @@ export const CartProvider = ({ children }) => {
     }, [shoppingCart]);
 
     const objValues = {
-        addProduct, removeItem, itemsInCart, totalPrice, shoppingCart
+        addProduct, removeItem, itemsInCart, totalPrice, shoppingCart, resetCart
     }
 
     return (

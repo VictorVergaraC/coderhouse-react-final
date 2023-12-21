@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { CartContext } from "../context/cartContext";
-import { Badge } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import { showSimpleAlert } from "../assets/js/helpers";
 
 const Product = ({ id, description, name, img, price, stock }) => {
 
@@ -10,6 +10,7 @@ const Product = ({ id, description, name, img, price, stock }) => {
     const handleAppend = () => {
         const product = { id, description, name, img, price, stock };
         addProduct(product, 1)
+        showSimpleAlert('success', 'Producto agregado!', 'Puede revisar el detalle en su carrito.')
     }
 
     return (
@@ -21,7 +22,13 @@ const Product = ({ id, description, name, img, price, stock }) => {
                 <img className='mb-3 rounded mb-3' style={{ width: '150px', height: '200px' }} src={img} alt={description} />
             </Link>
             <h5 className="mb-3">${price}</h5>
-            <button className={`btn btn-sm btn-success ${stock <= 5 ? 'mt-3' : ''}`} onClick={handleAppend}>Agregar</button>
+            <button
+                className={`btn btn-sm btn-success`}
+                onClick={handleAppend}
+                disabled={stock <= 0}
+            >
+                Agregar
+            </button>
         </article>
     );
 }

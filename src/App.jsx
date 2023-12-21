@@ -1,18 +1,18 @@
 import { BrowserRouter } from "react-router-dom"
 import Main from "./components/Main"
 import { CartProvider } from "./context/cartContext"
-import { StylesProvider } from "./context/stylesContext"
+import { FireBaseProvider } from "./context/firebaseContext"
 
 function App() {
 
   return (
-    <CartProvider>
-      <StylesProvider>
+    <FireBaseProvider>
+      <CartProvider>
         <BrowserRouter>
           <Main />
         </BrowserRouter>
-      </StylesProvider>
-    </CartProvider>
+      </CartProvider>
+    </FireBaseProvider>
   )
 }
 

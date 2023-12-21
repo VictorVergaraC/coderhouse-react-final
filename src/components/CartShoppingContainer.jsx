@@ -4,15 +4,19 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { FireBaseContext } from "../context/firebaseContext";
+import { showSimpleAlert } from "../assets/js/helpers";
 
 const CartShoppingContainer = () => {
 
-    const { shoppingCart, removeItem, totalPrice } = useContext(CartContext)
+    const { shoppingCart, removeItem, totalPrice, resetCart } = useContext(CartContext)
+    const { saveOrder } = useContext(FireBaseContext)
 
-    const [name, setName] = useState('')
-    const [email, setEmail] = useState('')
+    const initialCredentials = { name: '', email: '' }
+    const [credentials, setCredentials] = useState(initialCredentials)
 
+    const navigate = useNavigate()
 
     const handleRemoveItem = (objProduct) => {
 
@@ -29,13 +33,32 @@ const CartShoppingContainer = () => {
             if (result.isConfirmed) {
                 removeItem(objProduct)
 
-                Swal.fire({
-                    title: "Eliminado!",
-                    text: "El producto ha sido removido del carrito.",
-                    icon: "success"
-                });
+                showSimpleAlert('success', 'Eliminado!', 'El producto ha sido removido del carrito.')
             }
         });
+
+    }
+
+    const handleCretendials = e => {
+        const { name, value } = e.target
+        setCredentials({
+            ...credentials,
+            [name]: value,
+        })
+    }
+
+    const handleFinish = (evt) => {
+
+        evt.preventDefault()
+
+        saveOrder([...shoppingCart], credentials, totalPrice())
+        showSimpleAlert('success', 'Pedido realizado!', 'Pronto nos contactaremos con usted!')
+
+        const timer = setTimeout(() => {
+            resetCart()
+            navigate('/')
+        }, 5000);
+
 
     }
 
@@ -102,15 +125,15 @@ const CartShoppingContainer = () => {
                             <form className="form" onSubmit={(evt) => evt.preventDefault()}>
                                 <article className="mb-3">
                                     <label htmlFor='nombre_cliente' className="form-label">Nombre</label>
-                                    <input id='nombre_cliente' type="text" className="form-control" value={name} onChange={(evt) => setName(evt.target.value)} required />
+                                    <input id='nombre_cliente' name="name" type="text" className="form-control" onChange={handleCretendials} required />
                                 </article>
                                 <article className="mb-3">
                                     <label htmlFor='email_cliente' className="form-label">Email</label>
-                                    <input id='email_cliente' type="email" className="form-control" value={email} onChange={(evt) => setEmail(evt.target.value)} required />
+                                    <input id='email_cliente' name="email" type="email" className="form-control" onChange={handleCretendials} required />
                                 </article>
                                 <article className="d-flex gap-3 p-2 justify-content-end">
                                     <button className="btn btn-sm btn-secondary">Cancelar</button>
-                                    <button className="btn btn-sm btn-success">Finalizar Compra</button>
+                                    <button className="btn btn-sm btn-success" onClick={handleFinish}>Finalizar Compra</button>
                                 </article>
                             </form>
                         </section>

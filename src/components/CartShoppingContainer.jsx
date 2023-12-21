@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FireBaseContext } from "../context/firebaseContext";
-import { showSimpleAlert } from "../assets/js/helpers";
+import { isValidObject, showSimpleAlert } from "../assets/js/helpers";
 
 const CartShoppingContainer = () => {
 
@@ -15,6 +15,13 @@ const CartShoppingContainer = () => {
 
     const initialCredentials = { name: '', email: '' }
     const [credentials, setCredentials] = useState(initialCredentials)
+
+    const initialReCredentials = { reName: '', reEmail: '' }
+    const [reCredendials, setReCredendials] = useState(initialReCredentials);
+
+    const [confirmCretentials, setConfirmCredentials] = useState(false)
+
+    const [confirmReCredentials, setConfirmReCredentials] = useState(false)
 
     const navigate = useNavigate()
 
@@ -39,7 +46,7 @@ const CartShoppingContainer = () => {
 
     }
 
-    const handleCretendials = e => {
+    const handleCredendials = e => {
         const { name, value } = e.target
         setCredentials({
             ...credentials,
@@ -47,17 +54,56 @@ const CartShoppingContainer = () => {
         })
     }
 
+    const handleReCredentials = e => {
+        const { name, value } = e.target
+        setReCredendials({
+            ...reCredendials,
+            [name]: value,
+        })
+    }
+
+    const handleConfirmCredentials = () => {
+        if (!isValidObject(credentials, ['name', 'email'])) {
+            showSimpleAlert('warning', 'Advertencia!', 'Hay campos vacíos!')
+            setConfirmCredentials(false)
+            setConfirmReCredentials(false)
+            setReCredendials(initialReCredentials)
+            return
+        }
+        setConfirmCredentials(true)
+        setConfirmReCredentials(true)
+    }
+
+    const validaCredentials = () => {
+
+        const { name, email } = credentials
+        const { reName, reEmail } = reCredendials
+
+        if (name.toLowerCase().trim() !== reName.toLowerCase().trim()) {
+            return false
+        }
+        if (email.toLowerCase().trim() !== reEmail.toLowerCase().trim()) {
+            return false
+        }
+
+        return true
+    }
+
     const handleFinish = (evt) => {
 
         evt.preventDefault()
 
-        saveOrder([...shoppingCart], credentials, totalPrice())
-        showSimpleAlert('success', 'Pedido realizado!', 'Pronto nos contactaremos con usted!')
+        if (!validaCredentials()) {
+            showSimpleAlert('error', 'Advertencia!', 'Las credenciales no coinciden ...')
+            return
+        }
 
-        const timer = setTimeout(() => {
-            resetCart()
-            navigate('/')
-        }, 5000);
+        saveOrder([...shoppingCart], { ...credentials, name: credentials.name.trim(), email: credentials.email.trim()}, totalPrice())
+        showSimpleAlert('success', 'Pedido realizado!', 'Pronto nos contactaremos con usted!')
+            .then(result => {
+                resetCart()
+                navigate('/')
+            })
 
 
     }
@@ -125,16 +171,44 @@ const CartShoppingContainer = () => {
                             <form className="form" onSubmit={(evt) => evt.preventDefault()}>
                                 <article className="mb-3">
                                     <label htmlFor='nombre_cliente' className="form-label">Nombre</label>
-                                    <input id='nombre_cliente' name="name" type="text" className="form-control" onChange={handleCretendials} required />
+                                    <input id='nombre_cliente' name="name" type="text" className="form-control" onChange={handleCredendials} required />
                                 </article>
                                 <article className="mb-3">
                                     <label htmlFor='email_cliente' className="form-label">Email</label>
-                                    <input id='email_cliente' name="email" type="email" className="form-control" onChange={handleCretendials} required />
+                                    <input id='email_cliente' name="email" type="email" className="form-control" onChange={handleCredendials} required />
                                 </article>
-                                <article className="d-flex gap-3 p-2 justify-content-end">
-                                    <button className="btn btn-sm btn-secondary">Cancelar</button>
-                                    <button className="btn btn-sm btn-success" onClick={handleFinish}>Finalizar Compra</button>
-                                </article>
+
+                                {
+                                    !confirmCretentials ? (
+                                        <article className="mb-3">
+                                            <button className="btn btn-sm btn-primary" onClick={handleConfirmCredentials}>Confirmar Datos</button>
+                                        </article>
+                                    ) : null
+                                }
+
+                                {
+                                    confirmCretentials ? (
+                                        <>
+                                            <article className="mb-3">
+                                                <label htmlFor='re_nombre_cliente' className="form-label">Confirmar Nombre</label>
+                                                <input id='re_nombre_cliente' name="reName" type="text" className="form-control" onChange={handleReCredentials} required />
+                                            </article>
+                                            <article className="mb-3">
+                                                <label htmlFor='re_email_cliente' className="form-label">Confirmar Email</label>
+                                                <input id='re_email_cliente' name="reEmail" type="email" className="form-control" onChange={handleReCredentials} required />
+                                            </article>
+                                        </>
+                                    ) : null
+                                }
+
+                                {
+                                    confirmReCredentials ? (
+                                        <article className="d-flex gap-3 p-2 justify-content-end">
+                                            <button className="btn btn-sm btn-secondary">Cancelar</button>
+                                            <button className="btn btn-sm btn-success" onClick={handleFinish}>Finalizar Compra</button>
+                                        </article>
+                                    ) : null
+                                }
                             </form>
                         </section>
                     </>

@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import LoadingModal from "./LoadingModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";
@@ -12,17 +12,34 @@ const ProductDetail = () => {
 
     const { id } = useParams()
 
+    const navigate = useNavigate()
+
     const { addProduct, shoppingCart } = useContext(CartContext)
 
-    const { currentProduct: objProduct, maxAdd, setMaxAdd, getProductById: getProduct, isLoading } = useContext(FireBaseContext)
+    const { getProductById } = useContext(FireBaseContext)
 
+    const [isLoading, setIsLoading] = useState(true);
+    const [objProduct, setObjProduct] = useState({});
     const [currentStock, setCurrentStock] = useState('')
 
+    const [maxAdd, setMaxAdd] = useState(5)
     const [count, setCount] = useState(0)
 
     const increment = () => setCount(count < maxAdd ? count + 1 : count)
     const decrement = () => setCount(count > 0 ? count - 1 : count)
     const reset = () => setCount(0)
+
+    const handleGetProduct = async () => {
+        setIsLoading(true)
+        const product = await getProductById(id)
+        if (Object.keys(product).length > 0) {
+            setObjProduct(product)
+            setIsLoading(false)
+            return
+        }
+        showSimpleAlert('error', 'Ha ocurrido un error!', 'No ha sido posible encontrar el producto, será redirigido a la página principal')
+            .then(result => navigate('/'))
+    }
 
     const handleAddProduct = () => {
         if (count > 0) {
@@ -47,7 +64,7 @@ const ProductDetail = () => {
 
     useEffect(() => {
 
-        getProduct(id)
+        handleGetProduct()
 
         const prodInCart = productInCart()
         if (prodInCart) {

@@ -1,5 +1,4 @@
 import { createContext } from "react";
-import { useState } from "react";
 import { addDoc, collection, doc, getDoc, getDocs, query, serverTimestamp, updateDoc, where } from "firebase/firestore";
 import { DATABASE } from "../config/firebaseConfig";
 
@@ -7,45 +6,41 @@ export const FireBaseContext = createContext()
 
 export const FireBaseProvider = ({ children }) => {
 
-    const [currentProduct, setCurrentProduct] = useState({})
-    const [maxAdd, setMaxAdd] = useState(5)
-    const [products, setProducts] = useState([])
-    const [isLoading, setIsLoading] = useState(true)
-
     const objCollection = collection(DATABASE, 'products')
 
     const getProducts = async (category) => {
-        setIsLoading(true)
 
         const allProducts = category ? query(objCollection, where('category', '==', category)) : query(objCollection)
 
-        getDocs(allProducts)
+        const products = await getDocs(allProducts)
             .then(result => {
                 if (result.size <= 0) {
                     console.log('No existen productos!')
                 }
 
-                const arrProducts = result.docs.map(product => ({ id: product.id, ...product.data() }))
-                setProducts(arrProducts)
-                setIsLoading(false)
+                return result.docs.map(product => ({ id: product.id, ...product.data() })) || []
             })
+        return await products
     }
 
-    const getProductById = (idProduct) => {
-        setIsLoading(true)
+    const getProductById = async (idProduct) => {
         const objRef = doc(DATABASE, 'products', idProduct)
-        getDoc(objRef)
+        const prod = await getDoc(objRef)
             .then(result => {
                 if (result.exists()) {
                     const product = {
                         id: result.id,
                         ...result.data()
                     }
-                    setCurrentProduct(product)
-                    setMaxAdd(product.stock)
+                    return product
                 }
-                setIsLoading(false)
+                return {}
             })
+            .catch(err => {
+                console.log('Error: getProductById()...', err)
+                return {}
+            })
+        return await prod
 
     }
 
@@ -106,9 +101,7 @@ export const FireBaseProvider = ({ children }) => {
     }
 
     const objProvider = {
-        isLoading,
-        currentProduct, maxAdd, setMaxAdd,
-        products, getProducts, getProductById, discountStock,
+        getProducts, getProductById, discountStock,
         saveOrder, getOrderById,
     }
 

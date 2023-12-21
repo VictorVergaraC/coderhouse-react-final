@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Product from '../components/Product';
 import LoadingModal from '../components/LoadingModal';
 import { useParams } from 'react-router-dom';
@@ -9,12 +9,21 @@ const ProductsContainer = () => {
 
     const { category } = useParams()
 
-    const { isLoading, products, getProducts } = useContext(FireBaseContext)
+    const { getProducts } = useContext(FireBaseContext)
     const { shoppingCart } = useContext(CartContext)
 
-    useEffect(() => {
+    const [products, setProducts] = useState([])
+    const [isLoading, setIsLoading] = useState(true);
 
-        getProducts(category)
+    const handleLoadData = async () => {
+        setIsLoading(true)
+        const data = await getProducts(category)
+        setIsLoading(false)
+        setProducts(data)
+    }
+
+    useEffect(() => {
+        handleLoadData()
 
     }, [category, shoppingCart]);
 

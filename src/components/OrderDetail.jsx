@@ -1,23 +1,37 @@
 import { useContext, useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import LoadingModal from './LoadingModal';
 import { FireBaseContext } from '../context/firebaseContext';
+import { showSimpleAlert } from '../assets/js/helpers';
 
 const OrderDetail = () => {
 
     const { getOrderById } = useContext(FireBaseContext)
+
     const { id } = useParams()
+
+    const navigate = useNavigate()
+
     const [objOrder, setObjOrder] = useState({})
     const [isLoading, setIsLoading] = useState(true)
+
 
     const getOrder = async () => {
         setIsLoading(true)
 
         const response = await getOrderById(id)
+            .then(result => result)
+        const obj = await response
+        
+        if (Object.keys(obj).length > 0) {
+            setIsLoading(false)
+            setObjOrder(obj)
+            return
+        }
+
+        showSimpleAlert('error', 'Ha ocurrido un error!', 'No ha sido posible encontrar la orden, será redirigido a la página principal')
             .then(result => {
-                console.log(result)
-                setObjOrder(result)
-                setIsLoading(false)
+                navigate('/')
             })
 
     }

@@ -37,8 +37,8 @@ const ProductDetail = () => {
             setIsLoading(false)
             return
         }
-        showSimpleAlert('error', 'Ha ocurrido un error!', 'No ha sido posible encontrar el producto, será redirigido a la página principal')
-            .then(result => navigate('/'))
+        showSimpleAlert('error', 'Ha ocurrido un error!', 'No ha sido posible encontrar el producto.')
+            .then(result => navigate('/notfound'))
     }
 
     const handleAddProduct = () => {

@@ -3,6 +3,7 @@ import ProductsContainer from '../pages/ProductsContainer';
 import CartShoppingContainer from './CartShoppingContainer';
 import ProductDetail from './ProductDetail';
 import OrderDetail from './OrderDetail';
+import NotFound from './NotFound';
 
 const Content = () => {
     return (
@@ -13,6 +14,8 @@ const Content = () => {
                 <Route path='/producto/:id' element={<ProductDetail/>} />
                 <Route path='/carrito' element={<CartShoppingContainer/>} />
                 <Route path='/order/:id' element={<OrderDetail/>} />
+                <Route path='/notfound' element={<NotFound/>} />
+                <Route path='*' element={<NotFound/>} />
             </Routes>
             
         </main>

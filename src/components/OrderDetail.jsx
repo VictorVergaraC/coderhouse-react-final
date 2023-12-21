@@ -29,9 +29,9 @@ const OrderDetail = () => {
             return
         }
 
-        showSimpleAlert('error', 'Ha ocurrido un error!', 'No ha sido posible encontrar la orden, será redirigido a la página principal')
+        showSimpleAlert('error', 'Ha ocurrido un error!', 'No ha sido posible encontrar la orden.')
             .then(result => {
-                navigate('/')
+                navigate('/notfound')
             })
 
     }

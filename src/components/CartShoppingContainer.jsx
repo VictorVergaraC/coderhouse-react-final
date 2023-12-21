@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FireBaseContext } from "../context/firebaseContext";
-import { isValidObject, showSimpleAlert } from "../assets/js/helpers";
+import { closeSwal, isValidObject, showLoader, showSimpleAlert } from "../assets/js/helpers";
 
 const CartShoppingContainer = () => {
 
@@ -89,7 +89,7 @@ const CartShoppingContainer = () => {
         return true
     }
 
-    const handleFinish = (evt) => {
+    const handleFinish = async (evt) => {
 
         evt.preventDefault()
 
@@ -98,11 +98,16 @@ const CartShoppingContainer = () => {
             return
         }
 
-        saveOrder([...shoppingCart], { ...credentials, name: credentials.name.trim(), email: credentials.email.trim()}, totalPrice())
-        showSimpleAlert('success', 'Pedido realizado!', 'Pronto nos contactaremos con usted!')
+        showLoader('Guardando pedido, espere un momento', 1000)
+        const savedObject = await saveOrder([...shoppingCart], { ...credentials, name: credentials.name.trim(), email: credentials.email.trim()}, totalPrice())
+        closeSwal()
+        console.log(savedObject)
+
+        showSimpleAlert('success', 'Pedido realizado!', 'Redirigiendo al detalle ...')
             .then(result => {
                 resetCart()
-                navigate('/')
+                const { id } = savedObject
+                navigate(`/order/${id}`)
             })
 
 

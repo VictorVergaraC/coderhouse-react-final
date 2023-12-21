@@ -12,6 +12,22 @@ export const showSimpleAlert = (icon, title, message) => {
     })
 }
 
+export const showLoader = (msg = 'Cargando ...', width = 450) => {
+    const loaderOptions = {
+        title: msg,
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        width: width,
+        didOpen: () => {
+            Swal.showLoading()
+        },
+    }
+
+    return Swal.fire(loaderOptions)
+}
+
+export const closeSwal = () => Swal.close() 
+
 export const isValidObject = (obj, arrAttributes) => {
     for (const atributo of arrAttributes) {
         if (!obj[atributo] || (typeof obj[atributo] === 'string' && obj[atributo].trim() === '')) {

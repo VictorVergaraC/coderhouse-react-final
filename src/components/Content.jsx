@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom';
 import ProductsContainer from '../pages/ProductsContainer';
 import CartShoppingContainer from './CartShoppingContainer';
 import ProductDetail from './ProductDetail';
+import OrderDetail from './OrderDetail';
 
 const Content = () => {
     return (
@@ -11,6 +12,7 @@ const Content = () => {
                 <Route path='/categoria/:category' element={<ProductsContainer/>} />
                 <Route path='/producto/:id' element={<ProductDetail/>} />
                 <Route path='/carrito' element={<CartShoppingContainer/>} />
+                <Route path='/order/:id' element={<OrderDetail/>} />
             </Routes>
             
         </main>

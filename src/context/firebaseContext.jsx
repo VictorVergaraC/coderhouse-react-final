@@ -16,7 +16,7 @@ export const FireBaseProvider = ({ children }) => {
 
     const getProducts = async (category) => {
         setIsLoading(true)
-        
+
         const allProducts = category ? query(objCollection, where('category', '==', category)) : query(objCollection)
 
         getDocs(allProducts)
@@ -49,16 +49,52 @@ export const FireBaseProvider = ({ children }) => {
 
     }
 
-    const saveOrder = (cartProducts, userData, total) => {
+    const getOrderById = async (idOrder) => {
+        const objRef = doc(DATABASE, 'orders', idOrder)
+        const objProd = await getDoc(objRef)
+            .then(result => {
+                if (result.exists()) {
+                    const order = {
+                        id: result.id,
+                        ...result.data()
+                    }
+                    return order
+                }
+                return {}
+            })
+        return await objProd
+    }
+
+    const saveOrder = async (cartProducts, userData, total) => {
 
         const newOrder = {
-            buyer : userData,
-            items : cartProducts,
-            data  : serverTimestamp(),
+            buyer: userData,
+            items: cartProducts,
+            data: serverTimestamp(),
             total
         }
 
-        addDoc(collection(DATABASE, "orders"), newOrder)
+        // addDoc(collection(DATABASE, "orders"), newOrder)
+
+        try {
+            const docRef = await addDoc(collection(DATABASE, "orders"), newOrder);
+
+            const objCreated = await getDoc(docRef)
+                .then(result => {
+                    if (result.exists()) {
+                        const product = {
+                            id: result.id,
+                            ...result.data()
+                        }
+                        return product
+                    }
+                })
+
+            return await objCreated
+        } catch (error) {
+            console.error('Error al guardar el pedido:', error);
+            throw error;
+        }
     }
 
     const discountStock = async (objProduct, amount) => {
@@ -73,7 +109,7 @@ export const FireBaseProvider = ({ children }) => {
         isLoading,
         currentProduct, maxAdd, setMaxAdd,
         products, getProducts, getProductById, discountStock,
-        saveOrder, 
+        saveOrder, getOrderById,
     }
 
     return <FireBaseContext.Provider value={objProvider}>

@@ -39,7 +39,9 @@ const OrderDetail = () => {
                     <div className='container'>
                         <div className="jumbotron text-center">
                             <h1 className="display-4 text-success">¡Compra realizada exitosamente!</h1>
-                            <p className="lead">Gracias por tu compra. Aquí tienes los detalles de tu pedido:</p>
+                            <p className="lead">
+                                Gracias por tu compra <strong>{objOrder.buyer.name.toUpperCase()}</strong>. Aquí tienes los detalles de tu pedido:
+                            </p>
                             <hr className="my-4" />
 
                             <aside className='container'>
@@ -86,7 +88,8 @@ const OrderDetail = () => {
                                 </table>
                             </aside>
 
-                            <p>Recibirás un correo electrónico de confirmación con más detalles. Si tienes alguna pregunta, no dudes en contactarnos.</p>
+                            <p>
+                                Recibirás un correo electrónico de confirmación a <strong>{objOrder.buyer.email.toLowerCase()}</strong> con más detalles. Si tienes alguna pregunta, no dudes en contactarnos.</p>
                             <p className="lead">
                                 {/* <a className="btn btn-primary btn-lg" href="../index.html" role="button">Volver a la tienda</a> */}
                                 <Link to={'/'} className='btn btn-primary btn-lg'>

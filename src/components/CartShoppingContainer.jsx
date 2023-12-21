@@ -101,9 +101,8 @@ const CartShoppingContainer = () => {
         showLoader('Guardando pedido, espere un momento', 1000)
         const savedObject = await saveOrder([...shoppingCart], { ...credentials, name: credentials.name.trim(), email: credentials.email.trim()}, totalPrice())
         closeSwal()
-        console.log(savedObject)
 
-        showSimpleAlert('success', 'Pedido realizado!', 'Redirigiendo al detalle ...')
+        showSimpleAlert('success', 'Pedido realizado!', 'Será redirigido al detalle de su pedido')
             .then(result => {
                 resetCart()
                 const { id } = savedObject
